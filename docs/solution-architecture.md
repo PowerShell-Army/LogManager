@@ -1,17 +1,17 @@
 # logManager Solution Architecture Document
 
 **Project:** logManager
-**Date:** 2025-10-08
+**Date:** 2025-10-08 (Updated: 2025-10-08)
 **Author:** Adam
-**Architecture Type:** PowerShell Binary Module (.NET 8.0)
+**Architecture Type:** PowerShell Binary Module (.NET 9.0)
 
 ## Executive Summary
 
-logManager is a high-performance PowerShell module for log archival built in C#/.NET 8.0, designed to handle massive-scale operations (300K-1M files per day). The module provides 11 cmdlet functions organized in dependency layers, with a hybrid compression strategy (7-Zip CLI with SharpCompress fallback) and multi-destination support (AWS S3, UNC shares, local drives).
+logManager is a high-performance PowerShell module for log archival built in C#/.NET 9.0, designed to handle massive-scale operations (300K-1M files per day). The module provides 11 cmdlet functions organized in dependency layers, with a hybrid compression strategy (7-Zip CLI with SharpCompress fallback) and multi-destination support (AWS S3, UNC shares, local drives).
 
 **Key Architectural Decisions:**
 - **Target Platform:** PowerShell 7.2+ only (cross-platform)
-- **Framework:** .NET 8.0 (LTS, single target)
+- **Framework:** .NET 9.0 (latest stable, single target)
 - **Architecture Pattern:** Modular binary module with layered services
 - **Repository Strategy:** Monorepo on GitHub
 - **Distribution:** Internal use, GitHub releases
@@ -32,8 +32,8 @@ logManager is a high-performance PowerShell module for log archival built in C#/
 
 | Category | Technology | Version | Rationale |
 |----------|------------|---------|-----------|
-| **Runtime** | PowerShell | 7.2+ | Cross-platform support, modern performance, .NET 8 compatibility |
-| **Framework** | .NET | 8.0 (LTS) | Latest LTS, superior I/O performance, Span\<T\> for zero-allocation processing, modern C# features |
+| **Runtime** | PowerShell | 7.2+ | Cross-platform support, modern performance, .NET 9.0 compatibility |
+| **Framework** | .NET | 9.0 | Latest stable release, superior I/O performance, Span\<T\> for zero-allocation processing, modern C# 12 features |
 | **Language** | C# | 11/12 | Record types, pattern matching, modern async/await, file-scoped namespaces |
 | **Module Type** | Binary PowerShell Module | PSv7.2+ | Compiled performance for massive file operations, better dependency management than script modules |
 | **Compression (Primary)** | 7-Zip CLI | Latest | Maximum compression ratio, familiar to ops teams, widely installed |
@@ -48,6 +48,7 @@ logManager is a high-performance PowerShell module for log archival built in C#/
 
 **External Dependencies (Required on Target):**
 - PowerShell 7.2+ (host environment)
+- .NET 9.0 Runtime
 - AWS.Tools.S3 or AWSPowerShell.NetCore (for S3 functionality)
 - 7-Zip CLI (optional - enhances compression, not required)
 
@@ -429,32 +430,44 @@ public class TokenResolutionException : LogManagerException { }
 
 ## 5. Architecture Decision Records
 
-### ADR-001: PowerShell 7+ Only (No Cross-Version Compatibility)
+### ADR-001: PowerShell 7+ Only with .NET 9.0 (No Cross-Version Compatibility)
 
-**Status:** Accepted
+**Status:** Accepted (Updated 2025-10-08)
 
 **Context:**
-- Original consideration: Support both PowerShell 5.1 (.NET Framework) and PowerShell 7+ (.NET Core/8)
-- Would require multi-targeting (.NET Standard 2.0 + .NET 8)
+- Original consideration: Support both PowerShell 5.1 (.NET Framework) and PowerShell 7+ (.NET Core/9.0)
+- Would require multi-targeting (.NET Standard 2.0 + .NET 9.0)
+- Initial draft specified .NET 8.0 LTS, but .NET 9.0 provides latest features and performance
 
 **Decision:**
 - Target PowerShell 7.2+ exclusively
-- Use .NET 8.0 single target framework
+- Use .NET 9.0 single target framework
+
+**Rationale for .NET 9.0 over 8.0 LTS:**
+- Latest C# 12 language features and performance optimizations
+- Improved I/O and memory management
+- Better support for modern PowerShell 7.4+ features
+- Internal deployment environment can support latest runtime
+- Shorter time to production benefits outweigh LTS extended support for this internal tool
+- .NET 9.0 is stable and production-ready (released November 2024)
 
 **Consequences:**
 - **Positive:**
   - Simpler build (one target)
-  - Modern .NET 8 performance (Span\<T\>, modern I/O)
+  - Modern .NET 9.0 performance (Span\<T\>, modern I/O, latest JIT optimizations)
+  - Latest C# 12 language features
   - Better async/await support
   - Cross-platform ready (Windows/Linux/macOS)
   - Smaller codebase (no compatibility shims)
 - **Negative:**
   - Requires PowerShell 7+ installation on target servers
+  - Requires .NET 9.0 runtime (not LTS, but stable)
   - Not usable on Windows PowerShell 5.1 systems
 - **Mitigation:**
   - PowerShell 7+ is modern standard for new development
-  - Internal team is knowledgeable (can install pwsh 7+)
+  - Internal team is knowledgeable (can install pwsh 7+ and .NET 9.0)
   - Greenfield project allows modern baseline
+  - .NET 9.0 is production-ready and widely adopted
 
 ### ADR-002: Hybrid Compression (7-Zip CLI + SharpCompress Fallback)
 
@@ -659,8 +672,8 @@ public class TokenResolutionException : LogManagerException { }
 
 **Prerequisites:**
 ```bash
-# Install .NET 8 SDK
-winget install Microsoft.DotNet.SDK.8
+# Install .NET 9.0 SDK
+winget install Microsoft.DotNet.SDK.9
 
 # Install PowerShell 7.4+
 winget install Microsoft.PowerShell
@@ -686,7 +699,7 @@ dotnet build
 dotnet test
 
 # Import module for testing
-Import-Module ./src/logManager/bin/Debug/net8.0/logManager.psd1
+Import-Module ./src/logManager/bin/Debug/net9.0/logManager.psd1
 
 # Run Pester integration tests
 Invoke-Pester ./tests/Integration
@@ -955,7 +968,7 @@ logManager/
 │   │   │   ├── CleanupException.cs
 │   │   │   └── TokenResolutionException.cs
 │   │   │
-│   │   ├── logManager.csproj            # .NET 8.0 project
+│   │   ├── logManager.csproj            # .NET 9.0 project
 │   │   └── logManager.psd1              # Module manifest
 │   │
 │   └── logManager.sln                   # Solution file
@@ -1134,10 +1147,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup .NET 8
+      - name: Setup .NET 9.0
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '9.0.x'
 
       - name: Setup PowerShell
         shell: pwsh
@@ -1179,10 +1192,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup .NET 8
+      - name: Setup .NET 9.0
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '9.0.x'
 
       - name: Build Release
         run: dotnet build -c Release
@@ -1254,6 +1267,7 @@ $env:PSModulePath += ";\\fileserver\PowerShellModules"
 
 **Required on Target Systems:**
 - PowerShell 7.2 or later
+- .NET 9.0 Runtime
 - AWS.Tools.S3 module (for S3 functionality)
   ```powershell
   Install-Module AWS.Tools.S3 -Scope CurrentUser

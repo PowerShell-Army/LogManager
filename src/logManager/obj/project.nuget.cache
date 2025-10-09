@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "58+pU4i/8xM=",
+  "success": true,
+  "projectFilePath": "D:\\projects\\logManager\\src\\logManager\\logManager.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\abranham\\.nuget\\packages\\powershellstandard.library\\5.1.1\\powershellstandard.library.5.1.1.nupkg.sha512",
+    "C:\\Users\\abranham\\.nuget\\packages\\sharpcompress\\0.36.0\\sharpcompress.0.36.0.nupkg.sha512",
+    "C:\\Users\\abranham\\.nuget\\packages\\zstdsharp.port\\0.7.4\\zstdsharp.port.0.7.4.nupkg.sha512"
+  ],
+  "logs": []
+}
