@@ -1,6 +1,6 @@
 # Story 1.2: Implement Path Token Resolution Engine (FR013)
 
-Status: Ready for Review
+Status: Done
 
 ## Story
 
