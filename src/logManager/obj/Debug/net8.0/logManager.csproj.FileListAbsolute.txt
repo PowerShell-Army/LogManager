@@ -1,0 +1,15 @@
+D:\projects\logManager\src\logManager\bin\Debug\net8.0\logManager.deps.json
+D:\projects\logManager\src\logManager\bin\Debug\net8.0\logManager.dll
+D:\projects\logManager\src\logManager\bin\Debug\net8.0\logManager.pdb
+D:\projects\logManager\src\logManager\bin\Debug\net8.0\logManager.xml
+D:\projects\logManager\src\logManager\obj\Debug\net8.0\logManager.csproj.AssemblyReference.cache
+D:\projects\logManager\src\logManager\obj\Debug\net8.0\logManager.GeneratedMSBuildEditorConfig.editorconfig
+D:\projects\logManager\src\logManager\obj\Debug\net8.0\logManager.AssemblyInfoInputs.cache
+D:\projects\logManager\src\logManager\obj\Debug\net8.0\logManager.AssemblyInfo.cs
+D:\projects\logManager\src\logManager\obj\Debug\net8.0\logManager.csproj.CoreCompileInputs.cache
+D:\projects\logManager\src\logManager\obj\Debug\net8.0\logManager.sourcelink.json
+D:\projects\logManager\src\logManager\obj\Debug\net8.0\logManager.dll
+D:\projects\logManager\src\logManager\obj\Debug\net8.0\refint\logManager.dll
+D:\projects\logManager\src\logManager\obj\Debug\net8.0\logManager.xml
+D:\projects\logManager\src\logManager\obj\Debug\net8.0\logManager.pdb
+D:\projects\logManager\src\logManager\obj\Debug\net8.0\ref\logManager.dll

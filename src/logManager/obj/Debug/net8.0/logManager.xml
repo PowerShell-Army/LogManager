@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>logManager</name>
+    </assembly>
+    <members>
+        <member name="T:logManager.Cmdlets.GetDateRangeCmdlet">
+            <summary>
+            <para type="synopsis">Calculates a date range from day-based parameters.</para>
+            <para type="description">
+            The Get-DateRange cmdlet calculates date ranges from simple integer day parameters (olderThan/youngerThan),
+            enabling users to define archival windows without dealing with complex date objects.
+            Returns DateRangeResult objects compatible with PowerShell pipeline chaining.
+            </para>
+            </summary>
+        </member>
+        <member name="P:logManager.Cmdlets.GetDateRangeCmdlet.OlderThan">
+            <summary>
+            <para type="description">Number of days in the past for the start of the range (oldest date).</para>
+            </summary>
+        </member>
+        <member name="P:logManager.Cmdlets.GetDateRangeCmdlet.YoungerThan">
+            <summary>
+            <para type="description">Number of days in the past for the end of the range (newest date). Default is 0 (today).</para>
+            </summary>
+        </member>
+        <member name="P:logManager.Cmdlets.GetDateRangeCmdlet.DateCriteria">
+            <summary>
+            <para type="description">The date criteria type: CreationDate or ModifiedDate. Default is ModifiedDate.</para>
+            </summary>
+        </member>
+        <member name="M:logManager.Cmdlets.GetDateRangeCmdlet.ProcessRecord">
+            <summary>
+            Processes the cmdlet request.
+            </summary>
+        </member>
+        <member name="T:logManager.Models.DateCriteriaType">
+            <summary>
+            Specifies which file date property to use for filtering.
+            </summary>
+        </member>
+        <member name="F:logManager.Models.DateCriteriaType.CreationDate">
+            <summary>
+            Use the file or folder creation date.
+            </summary>
+        </member>
+        <member name="F:logManager.Models.DateCriteriaType.ModifiedDate">
+            <summary>
+            Use the file or folder last modified date.
+            </summary>
+        </member>
+        <member name="T:logManager.Models.DateRangeResult">
+            <summary>
+            Represents a single date in a calculated date range.
+            Returned by Get-DateRange cmdlet and used throughout the pipeline.
+            </summary>
+        </member>
+        <member name="P:logManager.Models.DateRangeResult.Date">
+            <summary>
+            The date in the range.
+            </summary>
+        </member>
+        <member name="P:logManager.Models.DateRangeResult.Criteria">
+            <summary>
+            The date criteria type (CreationDate or ModifiedDate) associated with this range.
+            </summary>
+        </member>
+        <member name="T:logManager.Services.DateRangeCalculator">
+            <summary>
+            Service for calculating date ranges based on day-based parameters.
+            Foundation layer - no dependencies on other services.
+            </summary>
+        </member>
+        <member name="M:logManager.Services.DateRangeCalculator.Calculate(System.Int32,System.Int32,logManager.Models.DateCriteriaType)">
+            <summary>
+            Calculates a date range from today going backwards based on olderThan and youngerThan parameters.
+            </summary>
+            <param name="olderThan">Number of days in the past for the start of the range (oldest date).</param>
+            <param name="youngerThan">Number of days in the past for the end of the range (newest date). Default is 0 (today).</param>
+            <param name="criteria">The date criteria type to associate with the results.</param>
+            <returns>Array of DateRangeResult objects representing each day in the range (inclusive).</returns>
+            <exception cref="T:System.ArgumentException">Thrown when olderThan is less than youngerThan.</exception>
+        </member>
+    </members>
+</doc>

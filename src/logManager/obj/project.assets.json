@@ -1,0 +1,167 @@
+{
+  "version": 3,
+  "targets": {
+    "net9.0": {
+      "PowerShellStandard.Library/5.1.1": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/System.Management.Automation.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/System.Management.Automation.dll": {}
+        }
+      },
+      "SharpCompress/0.36.0": {
+        "type": "package",
+        "dependencies": {
+          "ZstdSharp.Port": "0.7.4"
+        },
+        "compile": {
+          "lib/net8.0/SharpCompress.dll": {}
+        },
+        "runtime": {
+          "lib/net8.0/SharpCompress.dll": {}
+        }
+      },
+      "ZstdSharp.Port/0.7.4": {
+        "type": "package",
+        "compile": {
+          "lib/net8.0/ZstdSharp.dll": {}
+        },
+        "runtime": {
+          "lib/net8.0/ZstdSharp.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "PowerShellStandard.Library/5.1.1": {
+      "sha512": "e31xJjG+Kjbv6YF3Yq6D4Dl3or8v7LrNF41k3CXrWozW6hR1zcOe5KYuZJaGSiAgLnwP8wcW+I3+IWEzMPZKXQ==",
+      "type": "package",
+      "path": "powershellstandard.library/5.1.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net452/System.Management.Automation.dll",
+        "lib/netstandard2.0/System.Management.Automation.dll",
+        "powershellstandard.library.5.1.1.nupkg.sha512",
+        "powershellstandard.library.nuspec"
+      ]
+    },
+    "SharpCompress/0.36.0": {
+      "sha512": "48am//T6Ou+GmyPmBaxaFN1ym0VNidRcBeANr9+OYTzpKRz8QMGzAkHVkCV30lFQ/gnWqGr50AuebahpG1C6xA==",
+      "type": "package",
+      "path": "sharpcompress/0.36.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net462/SharpCompress.dll",
+        "lib/net6.0/SharpCompress.dll",
+        "lib/net7.0/SharpCompress.dll",
+        "lib/net8.0/SharpCompress.dll",
+        "lib/netstandard2.0/SharpCompress.dll",
+        "lib/netstandard2.1/SharpCompress.dll",
+        "sharpcompress.0.36.0.nupkg.sha512",
+        "sharpcompress.nuspec"
+      ]
+    },
+    "ZstdSharp.Port/0.7.4": {
+      "sha512": "ziptnotpUJr51afwXJQ5Wc03dvDiZAdmxS08s1g7SHn/VzbyZUXdH6yORk/zaNjzUOEE6pVZ0Nqztab0rYROgQ==",
+      "type": "package",
+      "path": "zstdsharp.port/0.7.4",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net462/ZstdSharp.dll",
+        "lib/net5.0/ZstdSharp.dll",
+        "lib/net6.0/ZstdSharp.dll",
+        "lib/net7.0/ZstdSharp.dll",
+        "lib/net8.0/ZstdSharp.dll",
+        "lib/netcoreapp3.1/ZstdSharp.dll",
+        "lib/netstandard2.0/ZstdSharp.dll",
+        "lib/netstandard2.1/ZstdSharp.dll",
+        "zstdsharp.port.0.7.4.nupkg.sha512",
+        "zstdsharp.port.nuspec"
+      ]
+    }
+  },
+  "projectFileDependencyGroups": {
+    "net9.0": [
+      "PowerShellStandard.Library >= 5.1.1",
+      "SharpCompress >= 0.36.0"
+    ]
+  },
+  "packageFolders": {
+    "C:\\Users\\abranham\\.nuget\\packages\\": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "D:\\projects\\logManager\\src\\logManager\\logManager.csproj",
+      "projectName": "logManager",
+      "projectPath": "D:\\projects\\logManager\\src\\logManager\\logManager.csproj",
+      "packagesPath": "C:\\Users\\abranham\\.nuget\\packages\\",
+      "outputPath": "D:\\projects\\logManager\\src\\logManager\\obj\\",
+      "projectStyle": "PackageReference",
+      "configFilePaths": [
+        "C:\\Users\\abranham\\AppData\\Roaming\\NuGet\\NuGet.Config"
+      ],
+      "originalTargetFrameworks": [
+        "net9.0"
+      ],
+      "sources": {
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "projectReferences": {}
+        }
+      },
+      "warningProperties": {
+        "warnAsError": [
+          "NU1605"
+        ]
+      },
+      "restoreAuditProperties": {
+        "enableAudit": "true",
+        "auditLevel": "low",
+        "auditMode": "direct"
+      },
+      "SdkAnalysisLevel": "9.0.300"
+    },
+    "frameworks": {
+      "net9.0": {
+        "targetAlias": "net9.0",
+        "dependencies": {
+          "PowerShellStandard.Library": {
+            "suppressParent": "All",
+            "target": "Package",
+            "version": "[5.1.1, )"
+          },
+          "SharpCompress": {
+            "target": "Package",
+            "version": "[0.36.0, )"
+          }
+        },
+        "imports": [
+          "net461",
+          "net462",
+          "net47",
+          "net471",
+          "net472",
+          "net48",
+          "net481"
+        ],
+        "assetTargetFallback": true,
+        "warn": true,
+        "frameworkReferences": {
+          "Microsoft.NETCore.App": {
+            "privateAssets": "all"
+          }
+        },
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+      }
+    }
+  }
+}

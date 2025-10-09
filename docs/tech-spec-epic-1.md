@@ -9,12 +9,12 @@ Status: Draft
 
 ## Overview
 
-Epic 1 delivers the foundational architecture for the logManager PowerShell module, implementing 8 of 11 core atomic functions organized across three dependency layers: Foundation, Discovery, and Processing. This epic establishes the module's architectural pattern as a PowerShell binary module built in C#/.NET 8.0, providing the essential capabilities for date-based log file discovery, archive existence checking, and in-place compression using a hybrid compression strategy (7-Zip CLI with SharpCompress fallback). The scope includes all prerequisite services and abstractions required for Epic 2's distribution and orchestration layers, validating the check-first workflow pattern and pipeline composition framework that enables both custom workflows and convenience orchestration.
+Epic 1 delivers the foundational architecture for the logManager PowerShell module, implementing 8 of 11 core atomic functions organized across three dependency layers: Foundation, Discovery, and Processing. This epic establishes the module's architectural pattern as a PowerShell binary module built in C#/.NET 9.0, providing the essential capabilities for date-based log file discovery, archive existence checking, and in-place compression using a hybrid compression strategy (7-Zip CLI with SharpCompress fallback). The scope includes all prerequisite services and abstractions required for Epic 2's distribution and orchestration layers, validating the check-first workflow pattern and pipeline composition framework that enables both custom workflows and convenience orchestration.
 
 ## Objectives and Scope
 
 **Primary Objectives:**
-1. Establish PowerShell binary module architecture (.NET 8.0, PowerShell 7.2+) with layered service design and dependency injection for testability
+1. Establish PowerShell binary module architecture (.NET 9.0, PowerShell 7.2+) with layered service design and dependency injection for testability
 2. Implement Foundation layer services (date range calculation, path token resolution, archive naming, error handling framework)
 3. Implement Discovery layer functions (file discovery, folder discovery, archive existence checking across S3/UNC/Local destinations)
 4. Implement Processing layer compression with hybrid engine strategy (7-Zip CLI detection with SharpCompress .NET library fallback)
@@ -47,7 +47,7 @@ Epic 1 delivers the foundational architecture for the logManager PowerShell modu
 This epic implements the first three layers of the four-layer architecture defined in the Solution Architecture Document:
 
 **Foundation Layer (No Internal Dependencies):**
-- Aligns with ADR-001: PowerShell 7.2+ only, .NET 8.0 single target
+- Aligns with ADR-001: PowerShell 7.2+ only, .NET 9.0 single target
 - Implements date calculation services using modern C# 11/12 record types
 - Establishes path token resolution engine supporting {year}, {month}, {day}, {server}, {app} tokens
 - Creates archive naming service implementing AppName-YYYYMMDD.zip pattern (FR010)
@@ -547,8 +547,8 @@ FolderDiscoveryService → User: Stream of LogFolderInfo objects
 
 **Framework Dependencies:**
 
-- .NET 8.0 SDK (development)
-- .NET 8.0 Runtime (deployment)
+- .NET 9.0 SDK (development)
+- .NET 9.0 Runtime (deployment)
 - PowerShell 7.2+ (host environment)
 
 **Integration Points:**
@@ -762,6 +762,14 @@ FolderDiscoveryService → User: Stream of LogFolderInfo objects
 - **Impact:** Users must filter by extension separately if needed
 - **Decision Needed:** Post-MVP enhancement if user feedback indicates need
 - **Owner:** Product team after MVP deployment
+
+## Post-Review Follow-ups
+
+**Story 1.1 - Get-DateRange Implementation (2025-10-08):**
+
+1. ✅ **[Medium] Framework Version Alignment** - **RESOLVED**: Architecture documentation (ADR-001) updated to specify .NET 9.0 instead of .NET 8.0 LTS. Rationale: Latest C# 12 features, improved I/O and memory performance, internal deployment environment supports latest runtime. .NET 9.0 is stable and production-ready (released November 2024). See Solution Architecture Document ADR-001 for complete justification.
+
+2. **[Low][Optional] Constructor Injection Pattern** - Add internal constructor to GetDateRangeCmdlet accepting DateRangeCalculator for improved testability, aligning with Solution Architecture section 6.2 cmdlet implementation pattern. Current direct instantiation is acceptable given comprehensive service-layer testing. **Status**: Optional enhancement, non-blocking. File: src/logManager/Cmdlets/GetDateRangeCmdlet.cs:19
 
 ## Test Strategy Summary
 

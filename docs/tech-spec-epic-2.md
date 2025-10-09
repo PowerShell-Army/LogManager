@@ -636,7 +636,7 @@ SkippedDates         : ["2025-10-01", "2025-10-03"]  # Already archived
 - NuGet: SharpCompress 0.36.0+, PowerShellStandard.Library 5.1.1
 - External Module: AWS.Tools.S3 4.1.0.0+ (for S3 transfers)
 - Optional Tool: 7-Zip CLI (for optimal compression)
-- Framework: .NET 8.0, PowerShell 7.2+
+- Framework: .NET 9.0, PowerShell 7.2+
 
 **New Integration Points in Epic 2:**
 
