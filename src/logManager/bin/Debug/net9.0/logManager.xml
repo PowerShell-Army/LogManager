@@ -34,6 +34,92 @@
             Processes the cmdlet request.
             </summary>
         </member>
+        <member name="T:logManager.Exceptions.CompressionException">
+            <summary>
+            Exception thrown when compression operations fail.
+            This includes failures from both 7-Zip CLI and SharpCompress library.
+            </summary>
+        </member>
+        <member name="M:logManager.Exceptions.CompressionException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:logManager.Exceptions.CompressionException"/> class with a specified error message.
+            </summary>
+            <param name="message">The message that describes the compression error.</param>
+        </member>
+        <member name="M:logManager.Exceptions.CompressionException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:logManager.Exceptions.CompressionException"/> class with a specified error message
+            and a reference to the inner exception that is the cause of this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+            <param name="inner">The exception that is the cause of the current exception (e.g., Process execution error, library error).</param>
+        </member>
+        <member name="T:logManager.Exceptions.LogManagerException">
+            <summary>
+            Base exception class for all logManager module exceptions.
+            Provides a common base for targeted exception handling in user scripts.
+            </summary>
+        </member>
+        <member name="M:logManager.Exceptions.LogManagerException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:logManager.Exceptions.LogManagerException"/> class with a specified error message.
+            </summary>
+            <param name="message">The message that describes the error.</param>
+        </member>
+        <member name="M:logManager.Exceptions.LogManagerException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:logManager.Exceptions.LogManagerException"/> class with a specified error message
+            and a reference to the inner exception that is the cause of this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+            <param name="inner">The exception that is the cause of the current exception.</param>
+        </member>
+        <member name="T:logManager.Exceptions.TokenResolutionException">
+            <summary>
+            Exception thrown when path token resolution fails.
+            This occurs when required context values are missing or when tokens cannot be resolved.
+            </summary>
+        </member>
+        <member name="M:logManager.Exceptions.TokenResolutionException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:logManager.Exceptions.TokenResolutionException"/> class with a specified error message.
+            </summary>
+            <param name="message">The message that describes the token resolution error.</param>
+        </member>
+        <member name="T:logManager.Models.ArchiveInfo">
+            <summary>
+            Represents a compressed archive created by Compress-Logs cmdlet.
+            Pipeline-compatible for chaining to downstream functions like Send-Archive.
+            Includes compression metrics for observability.
+            </summary>
+        </member>
+        <member name="P:logManager.Models.ArchiveInfo.ArchiveFile">
+            <summary>
+            The .NET FileInfo object for the created archive file.
+            </summary>
+        </member>
+        <member name="P:logManager.Models.ArchiveInfo.CompressionEngine">
+            <summary>
+            The compression engine used to create the archive.
+            Either "7-Zip" or "SharpCompress".
+            </summary>
+        </member>
+        <member name="P:logManager.Models.ArchiveInfo.CompressedSize">
+            <summary>
+            The size of the compressed archive in bytes.
+            </summary>
+        </member>
+        <member name="P:logManager.Models.ArchiveInfo.OriginalSize">
+            <summary>
+            The total size of the source files before compression in bytes.
+            </summary>
+        </member>
+        <member name="P:logManager.Models.ArchiveInfo.CompressionDuration">
+            <summary>
+            How long the compression operation took.
+            Useful for performance monitoring and optimization.
+            </summary>
+        </member>
         <member name="T:logManager.Models.DateCriteriaType">
             <summary>
             Specifies which file date property to use for filtering.
@@ -65,6 +151,89 @@
             The date criteria type (CreationDate or ModifiedDate) associated with this range.
             </summary>
         </member>
+        <member name="T:logManager.Models.LogFileInfo">
+            <summary>
+            Represents a log file discovered by Find-LogFiles cmdlet.
+            Pipeline-compatible for chaining to downstream functions like Compress-Logs.
+            </summary>
+        </member>
+        <member name="P:logManager.Models.LogFileInfo.File">
+            <summary>
+            The .NET FileInfo object for the discovered log file.
+            </summary>
+        </member>
+        <member name="P:logManager.Models.LogFileInfo.LogDate">
+            <summary>
+            The date extracted from the file (either CreationTime or LastWriteTime).
+            This is the date that matched the search criteria.
+            </summary>
+        </member>
+        <member name="P:logManager.Models.LogFileInfo.DateSource">
+            <summary>
+            Indicates which file date property was used for matching (CreationDate or ModifiedDate).
+            </summary>
+        </member>
+        <member name="T:logManager.Models.LogFolderInfo">
+            <summary>
+            Represents a dated log folder discovered by Find-LogFolders cmdlet.
+            Pipeline-compatible for chaining to downstream functions like Compress-Logs.
+            </summary>
+        </member>
+        <member name="P:logManager.Models.LogFolderInfo.Folder">
+            <summary>
+            The .NET DirectoryInfo object for the discovered log folder.
+            </summary>
+        </member>
+        <member name="P:logManager.Models.LogFolderInfo.ParsedDate">
+            <summary>
+            The date parsed from the folder name.
+            </summary>
+        </member>
+        <member name="P:logManager.Models.LogFolderInfo.FolderNamePattern">
+            <summary>
+            The folder naming pattern that was detected and parsed.
+            Either "YYYYMMDD" (e.g., 20251008) or "YYYY-MM-DD" (e.g., 2025-10-08).
+            </summary>
+        </member>
+        <member name="T:logManager.Models.TokenResolverContext">
+            <summary>
+            Context information required for resolving path tokens.
+            Contains the date being archived and optional server/application names.
+            </summary>
+        </member>
+        <member name="P:logManager.Models.TokenResolverContext.LogDate">
+            <summary>
+            The date of the log being archived (NOT the current date).
+            Used to resolve {year}, {month}, {day}, and {date} tokens.
+            </summary>
+        </member>
+        <member name="P:logManager.Models.TokenResolverContext.ServerName">
+            <summary>
+            Server name for resolving {server} token.
+            Optional - only required if template contains {server} token.
+            </summary>
+        </member>
+        <member name="P:logManager.Models.TokenResolverContext.ApplicationName">
+            <summary>
+            Application name for resolving {app} token.
+            Optional - only required if template contains {app} token.
+            </summary>
+        </member>
+        <member name="T:logManager.Services.ArchiveNamingService">
+            <summary>
+            Service for generating consistent archive filenames.
+            Foundation layer - no dependencies on other services.
+            </summary>
+        </member>
+        <member name="M:logManager.Services.ArchiveNamingService.GetArchiveName(System.String,System.DateTime)">
+            <summary>
+            Generates an archive filename using the pattern: AppName-YYYYMMDD.zip
+            </summary>
+            <param name="appName">The application name.</param>
+            <param name="date">The date for the archive.</param>
+            <returns>Archive filename in the format "AppName-YYYYMMDD.zip"</returns>
+            <exception cref="T:System.ArgumentException">Thrown when appName is null, empty, or contains invalid filename characters.</exception>
+        </member>
         <member name="T:logManager.Services.DateRangeCalculator">
             <summary>
             Service for calculating date ranges based on day-based parameters.
@@ -80,6 +249,23 @@
             <param name="criteria">The date criteria type to associate with the results.</param>
             <returns>Array of DateRangeResult objects representing each day in the range (inclusive).</returns>
             <exception cref="T:System.ArgumentException">Thrown when olderThan is less than youngerThan.</exception>
+        </member>
+        <member name="T:logManager.Services.PathTokenResolver">
+            <summary>
+            Service for resolving path tokens in destination path templates.
+            Foundation layer - no dependencies on other services.
+            </summary>
+        </member>
+        <member name="M:logManager.Services.PathTokenResolver.ResolveTokens(System.String,logManager.Models.TokenResolverContext)">
+            <summary>
+            Resolves tokens in a path template using the provided context.
+            Supported tokens: {year}, {month}, {day}, {date}, {server}, {app}
+            </summary>
+            <param name="template">The path template containing tokens (e.g., "s3://bucket/{year}/{month}/{day}").</param>
+            <param name="context">Context containing date and optional server/application names.</param>
+            <returns>The resolved path with all tokens replaced.</returns>
+            <exception cref="T:logManager.Exceptions.TokenResolutionException">Thrown when required context is missing for a token in the template.</exception>
+            <exception cref="T:System.ArgumentNullException">Thrown when template or context is null.</exception>
         </member>
     </members>
 </doc>

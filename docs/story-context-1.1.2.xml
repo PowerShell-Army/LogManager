@@ -1,0 +1,125 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>1.2</storyId>
+    <title>Implement Path Token Resolution Engine (FR013)</title>
+    <status>Draft</status>
+    <generatedAt>2025-10-08</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>D:\projects\logManager\docs\stories\story-1.2.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>a system function</asA>
+    <iWant>to resolve path tokens independently of transfer operations</iWant>
+    <soThat>both Test-ArchiveExists and Send-Archive can use consistent destination paths</soThat>
+    <tasks>
+      - Implement PathTokenResolver service (AC: #1, #2, #3, #4, #5)
+        - Create PathTokenResolver class with ResolveTokens method
+        - Implement token replacement logic for all supported tokens
+        - Create TokenResolverContext record for input parameters
+        - Handle all path types (UNC, S3, local)
+      - Add error handling (AC: #6)
+        - Create TokenResolutionException for invalid tokens
+        - Validate template and context inputs
+      - Create unit tests (AC: #6)
+        - Test S3 path with {year}/{month}/{day} tokens
+        - Test UNC path with {app}/{year} tokens
+        - Test {server} token replacement
+        - Test template with no tokens returns unchanged
+        - Test missing required context throws exception
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    1. Resolves tokens: {year}, {month}, {day}, {date}, {server}, {app}
+    2. Uses log date being archived, NOT current date
+    3. Accepts template string and date/context parameters
+    4. Returns fully resolved path string
+    5. Handles UNC paths (\\server\share), S3 paths (s3://bucket/key), local paths (D:\path)
+    6. Unit tests validate token replacement accuracy
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/tech-spec-epic-1.md" title="Technical Specification" section="Services and Modules">
+        PathTokenResolver: Internal Service to replace path tokens ({year}, {month}, etc.). Inputs: Template path, TokenResolverContext. Outputs: Resolved path string. Foundation Layer component.
+      </doc>
+      <doc path="docs/tech-spec-epic-1.md" title="Technical Specification" section="Data Models and Contracts">
+        TokenResolverContext record: { DateTime LogDate (date being processed, NOT current date), string ServerName ({server} token value), string ApplicationName ({app} token value) }
+      </doc>
+      <doc path="docs/tech-spec-epic-1.md" title="Technical Specification" section="AC2: Path Token Resolution">
+        - Template "s3://bucket/{year}/{month}/{day}" + LogDate=2025-10-08 → "s3://bucket/2025/10/08"
+        - Template "\\server\{app}\{year}-{month}" + AppName="MyApp", LogDate=2025-10-08 → "\\server\MyApp\2025-10"
+        - Template with {server} token + ServerName="PROD-SVR01" → replaces {server} with "PROD-SVR01"
+        - Template with no tokens → returns unchanged
+      </doc>
+      <doc path="docs/tech-spec-epic-1.md" title="Technical Specification" section="Exception Hierarchy">
+        TokenResolutionException extends LogManagerException. Used for invalid token resolution errors.
+      </doc>
+      <doc path="docs/epic-stories.md" title="Epic Stories" section="Story 1.2">
+        Foundation layer component with no dependencies. Critical for FR002 (Test-ArchiveExists) and FR006 (Send-Archive). Must be reusable utility function. Supported tokens: {year}, {month}, {day}, {date}, {server}, {app}.
+      </doc>
+    </docs>
+    <code>
+      <artifact path="src/logManager/Models/DateRangeResult.cs" kind="model" symbol="DateRangeResult" lines="7-18" reason="Example of C# record pattern used for Foundation layer models - follow same pattern for TokenResolverContext"/>
+      <artifact path="src/logManager/Services/DateRangeCalculator.cs" kind="service" symbol="DateRangeCalculator" lines="9-49" reason="Example of Foundation layer service pattern - PathTokenResolver should follow similar structure with public method and clear XML documentation"/>
+      <artifact path="src/logManager/logManager.csproj" kind="config" symbol="Project" lines="1-20" reason="Current project configuration: .NET 9.0, C# 12, nullable enabled. PathTokenResolver must comply with these settings"/>
+    </code>
+    <dependencies>
+      <dotnet>
+        <package name="PowerShellStandard.Library" version="5.1.1"/>
+        <package name="SharpCompress" version="0.36.0"/>
+      </dotnet>
+      <runtime>.NET 9.0</runtime>
+      <language>C# 12.0</language>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>Foundation layer - NO dependencies on other services or cmdlets</constraint>
+    <constraint>Must use C# record types for data models (modern .NET pattern per ADR-001)</constraint>
+    <constraint>Service class must be < 500 lines (ADR-004: Code maintainability)</constraint>
+    <constraint>Single responsibility: token resolution only</constraint>
+    <constraint>Use log date being archived, NOT current date</constraint>
+    <constraint>Token format: case-sensitive, curly braces required</constraint>
+    <constraint>Must handle all path types: UNC (\\server\share), S3 (s3://bucket/key), local (D:\path)</constraint>
+    <constraint>Enable nullable reference types (Nullable=enable in csproj)</constraint>
+    <constraint>Provide complete XML documentation comments for public APIs</constraint>
+  </constraints>
+
+  <interfaces>
+    <!-- No external interfaces required - Foundation layer service with no abstractions needed -->
+  </interfaces>
+  <tests>
+    <standards>
+      Unit testing framework: xUnit (version 2.6.6) following Arrange-Act-Assert pattern.
+      Use [Fact] for single test cases and [Theory] with [InlineData] for parameterized tests.
+      Test coverage target: 100% for Foundation layer services per ADR-006.
+      Mocking framework: Moq (version 4.20.70) for dependencies (though PathTokenResolver has none).
+      Test execution: dotnet test --collect:"XPlat Code Coverage"
+      Test naming convention: MethodName_Scenario_ExpectedResult
+    </standards>
+    <locations>
+      tests/logManager.Tests/Services/PathTokenResolverTests.cs (unit tests for PathTokenResolver)
+      tests/logManager.Tests/Models/TokenResolverContextTests.cs (if validation logic exists)
+      tests/logManager.Tests/Exceptions/TokenResolutionExceptionTests.cs (exception tests)
+    </locations>
+    <ideas>
+      <test ac="1,2,3,4">Test S3 path "s3://bucket/{year}/{month}/{day}" with LogDate=2025-10-08 returns "s3://bucket/2025/10/08"</test>
+      <test ac="1,2,3,4">Test UNC path "\\\\server\\{app}\\{year}" with AppName="MyApp", LogDate=2025-10-08 returns "\\\\server\\MyApp\\2025"</test>
+      <test ac="1">Test {server} token with ServerName="PROD-SVR01" replaced correctly</test>
+      <test ac="1">Test all tokens: {year}, {month}, {day}, {date}, {server}, {app} in single template</test>
+      <test ac="4">Test template with no tokens returns unchanged</test>
+      <test ac="6">Test missing required context (e.g., {server} token but ServerName null) throws TokenResolutionException</test>
+      <test ac="2">Verify uses LogDate from context, not DateTime.Today</test>
+      <test ac="5">Test UNC path with tokens: \\\\server\\share\\{year}\\{month}</test>
+      <test ac="5">Test local path with tokens: D:\\Logs\\{app}\\{date}</test>
+      <test ac="6">Test invalid token {invalid_token} throws TokenResolutionException or leaves unchanged (decide on behavior)</test>
+      <test ac="1">Test {date} token formats as YYYYMMDD</test>
+      <test ac="1">Test {month} token formats as zero-padded MM</test>
+      <test ac="1">Test {day} token formats as zero-padded DD</test>
+      <test ac="1,3">Test case sensitivity - {Year} should NOT match (only {year})</test>
+    </ideas>
+  </tests>
+</story-context>

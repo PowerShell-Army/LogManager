@@ -1,0 +1,103 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>1.3</storyId>
+    <title>Implement Archive Naming Pattern Logic (FR010)</title>
+    <status>Draft</status>
+    <generatedAt>2025-10-08</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>D:\projects\logManager\docs\stories\story-1.3.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>a system function</asA>
+    <iWant>to generate consistent archive filenames</iWant>
+    <soThat>all functions use the same naming convention</soThat>
+    <tasks>
+      - Implement ArchiveNamingService (AC: #1, #2, #3, #4)
+        - Create ArchiveNamingService class
+        - Implement GetArchiveName method
+        - Add application name validation
+        - Format date as YYYYMMDD
+      - Create unit tests (AC: #5)
+        - Test AppName="MyApp", Date=2025-10-08 returns "MyApp-20251008.zip"
+        - Test app name with spaces preserved
+        - Test invalid filename characters handled appropriately
+        - Test date formatting is consistent
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    1. Generates pattern: AppName-YYYYMMDD.zip
+    2. Accepts application name and date parameters
+    3. Returns filename string
+    4. Validates application name (no invalid filename characters)
+    5. Unit tests validate naming consistency
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/tech-spec-epic-1.md" title="Technical Specification" section="Services and Modules">
+        ArchiveNamingService: Internal Service to generate archive filenames (AppName-YYYYMMDD.zip). Inputs: AppName, Date. Outputs: Archive filename. Foundation Layer component.
+      </doc>
+      <doc path="docs/tech-spec-epic-1.md" title="Technical Specification" section="AC3: Archive Naming">
+        - AppName="MyApp" + Date=2025-10-08 → "MyApp-20251008.zip"
+        - AppName with spaces "My App" + Date=2025-10-08 → "My App-20251008.zip" (spaces preserved)
+      </doc>
+      <doc path="docs/epic-stories.md" title="Epic Stories" section="Story 1.3">
+        Foundation layer with no dependencies. Used by FR002 (Test-ArchiveExists), FR005 (Compress-Logs), FR006 (Send-Archive). Simple utility function with fixed filename pattern. Date format: YYYYMMDD (no separators).
+      </doc>
+    </docs>
+    <code>
+      <artifact path="src/logManager/Services/DateRangeCalculator.cs" kind="service" symbol="DateRangeCalculator" lines="9-49" reason="Example of Foundation layer service pattern - ArchiveNamingService should follow similar structure"/>
+      <artifact path="src/logManager/logManager.csproj" kind="config" symbol="Project" lines="1-20" reason=".NET 9.0, C# 12 configuration to follow"/>
+    </code>
+    <dependencies>
+      <dotnet>
+        <package name="PowerShellStandard.Library" version="5.1.1"/>
+        <package name="SharpCompress" version="0.36.0"/>
+      </dotnet>
+      <runtime>.NET 9.0</runtime>
+      <language>C# 12.0</language>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>Foundation layer - NO dependencies on other services or cmdlets</constraint>
+    <constraint>Service class must be < 500 lines (simple utility)</constraint>
+    <constraint>Single responsibility: archive filename generation only</constraint>
+    <constraint>Filename pattern is FIXED: AppName-YYYYMMDD.zip</constraint>
+    <constraint>Date format: YYYYMMDD (no separators, hyphens, or slashes)</constraint>
+    <constraint>Application name spaces are PRESERVED (not replaced)</constraint>
+    <constraint>Validate application name for invalid filename characters</constraint>
+    <constraint>Enable nullable reference types</constraint>
+    <constraint>Provide complete XML documentation comments</constraint>
+  </constraints>
+
+  <interfaces>
+    <!-- No external interfaces required - Foundation layer service -->
+  </interfaces>
+
+  <tests>
+    <standards>
+      xUnit framework with [Fact] and [Theory] attributes.
+      Arrange-Act-Assert pattern.
+      100% code coverage target for Foundation layer.
+      Test naming: MethodName_Scenario_ExpectedResult
+    </standards>
+    <locations>
+      tests/logManager.Tests/Services/ArchiveNamingServiceTests.cs
+    </locations>
+    <ideas>
+      <test ac="1,2,3">Test AppName="MyApp", Date=2025-10-08 returns "MyApp-20251008.zip"</test>
+      <test ac="1,2,3">Test app name with spaces "My App", Date=2025-10-08 returns "My App-20251008.zip"</test>
+      <test ac="4">Test invalid filename characters (e.g., AppName contains \ / : * ? " &lt; &gt; |) throws or sanitizes</test>
+      <test ac="1">Test date formatting is YYYYMMDD with no separators</test>
+      <test ac="1">Test months 1-9 are zero-padded (01-09)</test>
+      <test ac="1">Test days 1-9 are zero-padded (01-09)</test>
+      <test ac="5">Test naming consistency across multiple calls with same inputs</test>
+      <test ac="2,3">Test null or empty AppName throws ArgumentException</test>
+      <test ac="2">Test various date values (leap year, end of month, etc.)</test>
+    </ideas>
+  </tests>
+</story-context>

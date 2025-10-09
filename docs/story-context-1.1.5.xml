@@ -1,0 +1,132 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>1.5</storyId>
+    <title>Implement Fail-Fast Error Handling Framework (FR012)</title>
+    <status>Draft</status>
+    <generatedAt>2025-10-08</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>D:\projects\logManager\docs\stories\story-1.5.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>a PowerShell module developer</asA>
+    <iWant>functions to throw standard PowerShell exceptions on failures</iWant>
+    <soThat>calling scripts can implement their own error recovery</soThat>
+    <tasks>
+      - Define exception hierarchy (AC: #1, #2, #3)
+        - Create LogManagerException base class
+        - Create CompressionException for compression failures
+        - Create TokenResolutionException for path token errors
+        - Ensure all exceptions extend LogManagerException
+      - Implement error handling pattern in cmdlets (AC: #2, #3, #4)
+        - Use ThrowTerminatingError for all failure scenarios
+        - Include error ID, category, and target object
+        - Write actionable error messages with remediation guidance
+      - Create error handling tests (AC: #5)
+        - Test path not found throws ItemNotFoundException
+        - Test permission denied throws UnauthorizedAccessException
+        - Test invalid parameters throw ArgumentException
+        - Test compression failure throws CompressionException
+        - Verify no silent failures occur
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    1. All functions use standard PowerShell error handling
+    2. Throw terminating errors for failures (no silent failures)
+    3. Error messages are clear and actionable
+    4. No built-in retry logic (caller's responsibility)
+    5. Unit tests validate error conditions trigger exceptions
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/tech-spec-epic-1.md" title="Technical Specification" section="Data Models and Contracts - Exception Hierarchy">
+        Exception Hierarchy:
+        - LogManagerException (base): Inherits from System.Exception
+        - CompressionException: Inherits from LogManagerException (compression failures)
+        - TokenResolutionException: Inherits from LogManagerException (invalid token resolution)
+        All exceptions should provide constructors for: message only, message + inner exception
+      </doc>
+      <doc path="docs/tech-spec-epic-1.md" title="Technical Specification" section="AC10: Error Handling (Fail-Fast)">
+        Error scenarios:
+        - Path not found → ItemNotFoundException
+        - Permission denied → UnauthorizedAccessException with operation context
+        - Compression fails (7-Zip exit non-zero) → CompressionException with stderr output
+        - S3 connection fails → TransferException wrapping AWS error
+        All exceptions via ThrowTerminatingError() with ErrorId, Category, TargetObject
+      </doc>
+      <doc path="docs/tech-spec-epic-1.md" title="Technical Specification" section="NFR - Reliability/Availability">
+        FR012: Fail-Fast Error Handling - All cmdlets throw terminating errors on failures. No automatic retry logic. Clear, actionable error messages. Exception hierarchy enables targeted catch blocks.
+      </doc>
+      <doc path="docs/epic-stories.md" title="Epic Stories" section="Story 1.5">
+        Foundation layer framework. Cross-cutting concern for all functions. MVP discipline: No complex error recovery or retry logic. All cmdlets must fail fast with clear error messages. Use PowerShell standard error categories.
+      </doc>
+    </docs>
+    <code>
+      <artifact path="src/logManager/Cmdlets/GetDateRangeCmdlet.cs" kind="cmdlet" symbol="GetDateRangeCmdlet" lines="1-50" reason="Example cmdlet showing parameter validation and potential error handling patterns"/>
+      <artifact path="src/logManager/Services/DateRangeCalculator.cs" kind="service" symbol="DateRangeCalculator" lines="20-27" reason="Example of ArgumentException throwing for parameter validation"/>
+      <artifact path="src/logManager/logManager.csproj" kind="config" symbol="Project" lines="1-20" reason=".NET 9.0, C# 12 configuration"/>
+    </code>
+    <dependencies>
+      <dotnet>
+        <package name="PowerShellStandard.Library" version="5.1.1"/>
+        <package name="SharpCompress" version="0.36.0"/>
+      </dotnet>
+      <runtime>.NET 9.0</runtime>
+      <language>C# 12.0</language>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>Foundation layer framework - affects all cmdlets and services</constraint>
+    <constraint>All exceptions must inherit from LogManagerException base class</constraint>
+    <constraint>LogManagerException must inherit from System.Exception</constraint>
+    <constraint>Provide constructors: (string message) and (string message, Exception inner)</constraint>
+    <constraint>Cmdlets must use ThrowTerminatingError() for all failures (not throw directly)</constraint>
+    <constraint>Include ErrorRecord with: ErrorId, ErrorCategory, TargetObject</constraint>
+    <constraint>Error messages must be actionable with remediation guidance</constraint>
+    <constraint>NO retry logic - fail fast and let caller handle recovery</constraint>
+    <constraint>NO silent failures - every error condition must throw</constraint>
+    <constraint>Use standard .NET/PowerShell exceptions where appropriate (ArgumentException, ItemNotFoundException, UnauthorizedAccessException)</constraint>
+    <constraint>Enable nullable reference types</constraint>
+    <constraint>Provide XML documentation for all exception classes</constraint>
+  </constraints>
+
+  <interfaces>
+    <!-- No interfaces - exception hierarchy only -->
+  </interfaces>
+
+  <tests>
+    <standards>
+      Unit tests: xUnit for exception throwing validation.
+      Integration tests: Pester for cmdlet error handling behavior.
+      Mock file system and external dependencies to trigger error conditions.
+      Test naming: MethodName_ErrorCondition_ThrowsExpectedException
+    </standards>
+    <locations>
+      src/logManager/Exceptions/LogManagerException.cs
+      src/logManager/Exceptions/CompressionException.cs
+      src/logManager/Exceptions/TokenResolutionException.cs
+      tests/logManager.Tests/Exceptions/ (unit tests for exception classes)
+      tests/logManager.Tests/Integration/Error-Handling.Tests.ps1
+    </locations>
+    <ideas>
+      <test ac="1,2,3">Create LogManagerException base class with message and inner exception constructors</test>
+      <test ac="1,2,3">Create CompressionException extending LogManagerException</test>
+      <test ac="1,2,3">Create TokenResolutionException extending LogManagerException</test>
+      <test ac="5">Test path not found throws ItemNotFoundException</test>
+      <test ac="5">Test permission denied throws UnauthorizedAccessException</test>
+      <test ac="5">Test invalid olderThan &lt; youngerThan throws ArgumentException</test>
+      <test ac="5">Test compression failure (7-Zip non-zero exit) throws CompressionException</test>
+      <test ac="5">Test missing token context (e.g., {server} but ServerName null) throws TokenResolutionException</test>
+      <test ac="2">Verify ThrowTerminatingError is used in cmdlets (not direct throw)</test>
+      <test ac="3">Verify error messages include specific failure context (file path, operation attempted)</test>
+      <test ac="3">Verify error messages include remediation guidance where appropriate</test>
+      <test ac="4">Verify NO retry logic exists in any cmdlet or service</test>
+      <test ac="2">Test all error paths to ensure no silent failures (comprehensive negative testing)</test>
+      <test ac="1">Test ErrorRecord includes correct ErrorCategory (InvalidArgument, ResourceUnavailable, etc.)</test>
+    </ideas>
+  </tests>
+</story-context>

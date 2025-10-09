@@ -1,0 +1,125 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>1.4</storyId>
+    <title>Implement PowerShell Pipeline Composition Pattern (FR009)</title>
+    <status>Draft</status>
+    <generatedAt>2025-10-08</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>D:\projects\logManager\docs\stories\story-1.4.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>a PowerShell module developer</asA>
+    <iWant>all functions to return pipeline-compatible objects</iWant>
+    <soThat>users can chain functions in custom workflows</soThat>
+    <tasks>
+      - Define return object models (AC: #1, #2, #3)
+        - Create DateRangeResult record (DONE in Story 1.1)
+        - Create LogFileInfo record
+        - Create LogFolderInfo record
+        - Create ArchiveInfo record
+        - Ensure all records are PowerShell-compatible
+      - Implement ValueFromPipeline parameters (AC: #4)
+        - Add ValueFromPipeline to Find-LogFiles DateRange parameter
+        - Add ValueFromPipeline to Find-LogFolders DateRange parameter
+        - Add ValueFromPipeline to Test-ArchiveExists DateRange parameter
+        - Add ValueFromPipeline to Compress-Logs SourcePath parameter
+      - Create pipeline integration tests (AC: #4, #5)
+        - Test Get-DateRange | Find-LogFolders pipeline
+        - Test Get-DateRange | Test-ArchiveExists | Find-LogFolders pipeline
+        - Test Find-LogFolders | Compress-Logs pipeline
+        - Create documentation examples
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    1. Define return object schemas for each function type
+    2. All functions output PSCustomObject or equivalent
+    3. Objects include essential properties for next pipeline stage
+    4. Pipeline chaining validated with example workflows
+    5. Documentation shows pipeline composition examples
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/tech-spec-epic-1.md" title="Technical Specification" section="Data Models and Contracts">
+        Return Object Models (PowerShell Pipeline Compatible):
+        - DateRangeResult: { DateTime Date, DateCriteriaType Criteria }
+        - LogFileInfo: { FileInfo File, DateTime LogDate, DateCriteriaType DateSource }
+        - LogFolderInfo: { DirectoryInfo Folder, DateTime ParsedDate, string FolderNamePattern }
+        - ArchiveInfo: { FileInfo ArchiveFile, string CompressionEngine, long CompressedSize, long OriginalSize, TimeSpan CompressionDuration }
+        All models must be C# record types with init-only properties.
+      </doc>
+      <doc path="docs/tech-spec-epic-1.md" title="Technical Specification" section="AC11: Pipeline Composition">
+        - Get-DateRange output piped to Find-LogFolders → Find-LogFolders accepts DateRangeResult[] from pipeline
+        - Get-DateRange → Test-ArchiveExists → Find-LogFolders → filters dates through entire chain
+        - Find-LogFolders output piped to Compress-Logs → Compress-Logs accepts LogFolderInfo[] from pipeline
+      </doc>
+      <doc path="docs/solution-architecture.md" title="Solution Architecture" section="Pipeline Composition Framework">
+        All return types must serialize properly for PowerShell. PowerShell pipeline compatibility requires [Parameter(ValueFromPipeline = true)] attribute.
+      </doc>
+      <doc path="docs/epic-stories.md" title="Epic Stories" section="Story 1.4">
+        Foundation layer framework. Cross-cutting concern for all functions. All return types must be C# record types (modern .NET pattern).
+      </doc>
+    </docs>
+    <code>
+      <artifact path="src/logManager/Models/DateRangeResult.cs" kind="model" symbol="DateRangeResult" lines="7-18" reason="ALREADY IMPLEMENTED - Example pattern for other record types (LogFileInfo, LogFolderInfo, ArchiveInfo)"/>
+      <artifact path="src/logManager/Cmdlets/GetDateRangeCmdlet.cs" kind="cmdlet" symbol="GetDateRangeCmdlet" lines="1-50" reason="Example cmdlet structure showing OutputType attribute - other cmdlets should follow"/>
+      <artifact path="src/logManager/logManager.csproj" kind="config" symbol="Project" lines="1-20" reason=".NET 9.0, C# 12 with record type support"/>
+    </code>
+    <dependencies>
+      <dotnet>
+        <package name="PowerShellStandard.Library" version="5.1.1"/>
+        <package name="SharpCompress" version="0.36.0"/>
+      </dotnet>
+      <runtime>.NET 9.0</runtime>
+      <language>C# 12.0</language>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>Foundation layer framework - affects all cmdlets</constraint>
+    <constraint>All return types MUST be C# record types with init-only properties (modern .NET pattern per ADR-001)</constraint>
+    <constraint>Records must be immutable (init-only setters, no mutable state)</constraint>
+    <constraint>PowerShell compatibility: [Parameter(ValueFromPipeline = true)] for pipeline inputs</constraint>
+    <constraint>Cmdlets must declare [OutputType(typeof(...))] attribute</constraint>
+    <constraint>Properties must serialize correctly for PowerShell (avoid complex nested objects)</constraint>
+    <constraint>DateRangeResult already exists (Story 1.1) - reuse, don't recreate</constraint>
+    <constraint>Use .NET FileInfo and DirectoryInfo types where appropriate</constraint>
+    <constraint>Enable nullable reference types</constraint>
+    <constraint>Provide complete XML documentation comments for all public models</constraint>
+  </constraints>
+
+  <interfaces>
+    <!-- No abstractions - these are concrete data models -->
+  </interfaces>
+
+  <tests>
+    <standards>
+      Unit tests: xUnit for model validation logic (if any).
+      Integration tests: Pester (PowerShell) for pipeline chaining validation.
+      Test naming: MethodName_Scenario_ExpectedResult (xUnit), Describe/Context/It (Pester)
+    </standards>
+    <locations>
+      src/logManager/Models/LogFileInfo.cs
+      src/logManager/Models/LogFolderInfo.cs
+      src/logManager/Models/ArchiveInfo.cs
+      tests/logManager.Tests/Integration/Pipeline-Composition.Tests.ps1
+      docs/USAGE.md (pipeline examples section)
+    </locations>
+    <ideas>
+      <test ac="1,2,3">Create LogFileInfo record with FileInfo, LogDate, DateSource properties</test>
+      <test ac="1,2,3">Create LogFolderInfo record with DirectoryInfo, ParsedDate, FolderNamePattern properties</test>
+      <test ac="1,2,3">Create ArchiveInfo record with ArchiveFile, CompressionEngine, sizes, duration properties</test>
+      <test ac="2">Verify all records use init-only properties (immutable)</test>
+      <test ac="4">Pester test: Get-DateRange | Find-LogFolders pipeline works</test>
+      <test ac="4">Pester test: Get-DateRange | Test-ArchiveExists | Find-LogFolders multi-stage pipeline</test>
+      <test ac="4">Pester test: Find-LogFolders | Compress-Logs pipeline</test>
+      <test ac="3,4">Test DateRangeResult[] flows correctly through pipeline to Find-LogFiles</test>
+      <test ac="3,4">Test LogFolderInfo[] flows correctly to Compress-Logs</test>
+      <test ac="5">Create USAGE.md documentation with 3+ pipeline composition examples</test>
+      <test ac="2">Verify models serialize/deserialize correctly in PowerShell (Export-Clixml, Import-Clixml)</test>
+    </ideas>
+  </tests>
+</story-context>

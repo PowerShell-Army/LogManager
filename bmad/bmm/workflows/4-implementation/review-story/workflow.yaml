@@ -50,7 +50,7 @@ variables:
     - external-apis.md
   enable_mcp_doc_search: true # Prefer enabled MCP servers for doc/best-practice lookup
   enable_web_fallback: true # Fallback to web search/read-url if MCP not available
-  update_status_on_result: false # If true, update story Status based on review outcome
+  update_status_on_result: true # If true, update story Status based on review outcome
   status_on_approve: "Done"
   status_on_changes_requested: "InProgress"
   # Persistence controls for review action items and notes
@@ -97,4 +97,4 @@ execution_hints:
   interactive: false # Minimize prompts; intended to run deterministically
   autonomous: true # Proceed without user input unless blocked
   iterative: true
-
+
